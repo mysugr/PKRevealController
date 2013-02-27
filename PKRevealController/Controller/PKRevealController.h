@@ -24,7 +24,8 @@ typedef NS_ENUM(NSUInteger, PKRevealControllerState)
 
 typedef NS_ENUM(NSUInteger, PKRevealControllerAnimationType)
 {
-    PKRevealControllerAnimationTypeStatic // Rear view's do not move at all.
+    PKRevealControllerAnimationTypeStatic, // Rear view's do not move at all.
+    PKRevealControllerAnimationTypeBouncy
 };
 
 typedef NS_OPTIONS(NSUInteger, PKRevealControllerType)

@@ -797,7 +797,7 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
         case UIGestureRecognizerStateFailed:
             [self handleGestureEndedWithRecognizer:recognizer];
             break;
-                        
+            
         default:
         {
             self.revealPanGestureRecognizer.enabled = YES;
@@ -856,7 +856,7 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     else if (gestureRecognizer == self.revealResetTapGestureRecognizer)
     {
         return ([self isLeftViewVisible] || [self isRightViewVisible]);
-    } 
+    }
     
     return YES;
 }
@@ -978,9 +978,9 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     {
         [self showFrontViewControllerAnimated:animated
                                    completion:^(BOOL finished)
-        {
-            showLeftViewBlock(finished);
-        }];
+         {
+             showLeftViewBlock(finished);
+         }];
     }
     else
     {
@@ -1002,24 +1002,24 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
         [weakSelf setFrontViewFrame:[weakSelf frontViewFrameForVisibleRightView]
                            animated:animated
                          completion:^(BOOL finished)
-        {
-            if (weakSelf.disablesFrontViewInteraction)
-            {
-                [weakSelf.frontViewContainer disableUserInteractionForContainedView];
-            }
-            weakSelf.state = PKRevealControllerFocusesRightViewController;
-            [weakSelf updateResetTapGestureRecognizer];
-            safelyExecuteCompletionBlockOnMainThread(completion, finished);
-        }];
+         {
+             if (weakSelf.disablesFrontViewInteraction)
+             {
+                 [weakSelf.frontViewContainer disableUserInteractionForContainedView];
+             }
+             weakSelf.state = PKRevealControllerFocusesRightViewController;
+             [weakSelf updateResetTapGestureRecognizer];
+             safelyExecuteCompletionBlockOnMainThread(completion, finished);
+         }];
     };
     
     if ([self isLeftViewVisible])
     {
         [self showFrontViewControllerAnimated:animated
                                    completion:^(BOOL finished)
-        {
-            showRightViewBlock(finished);
-        }];
+         {
+             showRightViewBlock(finished);
+         }];
     }
     else
     {
@@ -1049,6 +1049,7 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
      }];
 }
 
+
 - (void)enterPresentationModeForLeftViewControllerAnimated:(BOOL)animated
                                                 completion:(PKDefaultCompletionHandler)completion
 {
@@ -1057,10 +1058,10 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     [self setFrontViewFrame:[self frontViewFrameForLeftViewPresentationMode]
                    animated:animated
                  completion:^(BOOL finished)
-    {
-        weakSelf.state = PKRevealControllerFocusesLeftViewControllerInPresentationMode;
-        safelyExecuteCompletionBlockOnMainThread(completion, finished);
-    }];
+     {
+         weakSelf.state = PKRevealControllerFocusesLeftViewControllerInPresentationMode;
+         safelyExecuteCompletionBlockOnMainThread(completion, finished);
+     }];
 }
 
 - (void)enterPresentationModeForRightViewControllerAnimated:(BOOL)animated
@@ -1071,10 +1072,10 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     [self setFrontViewFrame:[self frontViewFrameForRightViewPresentationMode]
                    animated:animated
                  completion:^(BOOL finished)
-    {
-        weakSelf.state = PKRevealControllerFocusesRightViewControllerInPresentationMode;
-        safelyExecuteCompletionBlockOnMainThread(completion, finished);
-    }];
+     {
+         weakSelf.state = PKRevealControllerFocusesRightViewControllerInPresentationMode;
+         safelyExecuteCompletionBlockOnMainThread(completion, finished);
+     }];
 }
 
 - (void)resignPresentationModeForLeftViewControllerEntirely:(BOOL)entirely
@@ -1100,10 +1101,10 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     [self setFrontViewFrame:frame
                    animated:animated
                  completion:^(BOOL finished)
-    {
-        weakSelf.state = state;
-        safelyExecuteCompletionBlockOnMainThread(completion, finished);
-    }];
+     {
+         weakSelf.state = state;
+         safelyExecuteCompletionBlockOnMainThread(completion, finished);
+     }];
 }
 
 - (void)resignPresentationModeForRightViewControllerEntirely:(BOOL)entirely
@@ -1127,10 +1128,10 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     }
     
     [self setFrontViewFrame:frame animated:animated completion:^(BOOL finished)
-    {
-        weakSelf.state = state;
-        safelyExecuteCompletionBlockOnMainThread(completion, finished);
-    }];
+     {
+         weakSelf.state = state;
+         safelyExecuteCompletionBlockOnMainThread(completion, finished);
+     }];
 }
 
 #pragma mark -
@@ -1149,7 +1150,15 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
                                duration:duration
                                 options:options
                              completion:completion];
+    } else if (self.animationType == PKRevealControllerAnimationTypeBouncy)
+    {
+        [self setFrontViewFrameBouncy:frame
+                               animated:animated
+                               duration:duration
+                                options:options
+                             completion:completion];
     }
+
 }
 
 - (void)setFrontViewFrameLinearly:(CGRect)frame
@@ -1159,14 +1168,65 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
                        completion:(PKDefaultCompletionHandler)completion
 {
     [UIView animateWithDuration:duration delay:0.0f options:options animations:^
-    {
-        self.frontViewContainer.frame = frame;
-    }
-    completion:^(BOOL finished)
-    {
-        safelyExecuteCompletionBlockOnMainThread(completion, finished);
-    }];
+     {
+         self.frontViewContainer.frame = frame;
+     }
+                     completion:^(BOOL finished)
+     {
+         safelyExecuteCompletionBlockOnMainThread(completion, finished);
+     }];
 }
+
+
+
+- (void)setFrontViewFrameBouncy:(CGRect)frame
+                       animated:(BOOL)animated
+                       duration:(CGFloat)duration
+                        options:(UIViewAnimationOptions)options
+                     completion:(PKDefaultCompletionHandler)completion
+{
+    NSInteger currentX = self.frontViewContainer.frame.origin.x;
+    NSInteger newX = frame.origin.x;
+    NSInteger bounceDistance = -10;
+    
+    CGRect currentMenuFrame = self.leftViewContainer.frame;
+    UIView * viewToTransform = self.leftViewContainer;
+    
+    if(newX > currentX) { // Menu wir gerade aufgeklappt (sichtbar)
+        bounceDistance = 10;
+    } else {
+        
+    }
+    
+    [UIView animateWithDuration:duration/2 delay:0.0f options:options animations:^
+     {
+         self.frontViewContainer.frame = CGRectMake(newX+bounceDistance, frame.origin.y,
+                                                    frame.size.width, frame.size.height);
+     } completion:^(BOOL finished) {
+         [UIView animateWithDuration:duration/4 delay:0.0f options:options animations:^
+          {
+              self.frontViewContainer.frame = CGRectMake(newX-bounceDistance/6, frame.origin.y,
+                                                         frame.size.width, frame.size.height);
+              
+              
+          } completion:^(BOOL finished) {
+              [UIView animateWithDuration:duration/6 delay:0.0f options:options animations:^
+               {
+                   self.frontViewContainer.frame = frame;
+               } completion:^(BOOL finished) {
+                   
+                   if (finished)
+                   {
+                       safelyExecuteCompletionBlockOnMainThread(completion, finished);
+                   }
+               }];
+              
+          }];
+     }];
+}
+
+
+
 
 #pragma mark - Helpers (Gestures)
 
@@ -1388,18 +1448,18 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     if ([self hasLeftViewController] && [self hasRightViewController])
     {
         return [self.frontViewController shouldAutorotate]
-            && [self.leftViewController shouldAutorotate]
-            && [self.rightViewController shouldAutorotate];
+        && [self.leftViewController shouldAutorotate]
+        && [self.rightViewController shouldAutorotate];
     }
     else if ([self hasLeftViewController])
     {
         return [self.frontViewController shouldAutorotate]
-            && [self.leftViewController shouldAutorotate];
+        && [self.leftViewController shouldAutorotate];
     }
     else if ([self hasRightViewController])
     {
         return [self.frontViewController shouldAutorotate]
-            && [self.rightViewController shouldAutorotate];
+        && [self.rightViewController shouldAutorotate];
     }
     else
     {
@@ -1412,18 +1472,18 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     if ([self hasLeftViewController] && [self hasRightViewController])
     {
         return self.frontViewController.supportedInterfaceOrientations
-             & self.leftViewController.supportedInterfaceOrientations
-             & self.rightViewController.supportedInterfaceOrientations;
+        & self.leftViewController.supportedInterfaceOrientations
+        & self.rightViewController.supportedInterfaceOrientations;
     }
     else if ([self hasLeftViewController])
     {
         return self.frontViewController.supportedInterfaceOrientations
-             & self.leftViewController.supportedInterfaceOrientations;
+        & self.leftViewController.supportedInterfaceOrientations;
     }
     else if ([self hasRightViewController])
     {
         return self.frontViewController.supportedInterfaceOrientations
-             & self.rightViewController.supportedInterfaceOrientations;
+        & self.rightViewController.supportedInterfaceOrientations;
     }
     else
     {
@@ -1434,8 +1494,8 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {
     return [self.frontViewController shouldAutorotateToInterfaceOrientation:toInterfaceOrientation]
-        && [self.leftViewController shouldAutorotateToInterfaceOrientation:toInterfaceOrientation]
-        && [self.rightViewController shouldAutorotateToInterfaceOrientation:toInterfaceOrientation];
+    && [self.leftViewController shouldAutorotateToInterfaceOrientation:toInterfaceOrientation]
+    && [self.rightViewController shouldAutorotateToInterfaceOrientation:toInterfaceOrientation];
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
@@ -1455,7 +1515,7 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     [self.leftViewController removeFromParentViewController];
     [self.leftViewController.view removeFromSuperview];
     self.leftViewContainer = nil;
-        
+    
     [self.rightViewController removeFromParentViewController];
     [self.rightViewController.view removeFromSuperview];
     self.rightViewContainer = nil;
