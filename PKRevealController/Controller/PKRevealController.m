@@ -423,7 +423,7 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
             self.frontViewContainer.autoresizingMask = [self autoresizingMaskForFrontViewContainer];
         }
         
-        self.frontViewContainer.frame = [self frontViewFrameForCurrentState];
+        //self.frontViewContainer.frame = [self frontViewFrameForCurrentState];
         [self.view addSubview:self.frontViewContainer];
         [self.frontViewController didMoveToParentViewController:self];
         
@@ -1188,41 +1188,53 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     NSInteger currentX = self.frontViewContainer.frame.origin.x;
     NSInteger newX = frame.origin.x;
     NSInteger bounceDistance = -10;
-    
-    CGRect currentMenuFrame = self.leftViewContainer.frame;
-    UIView * viewToTransform = self.leftViewContainer;
-    
-    if(newX > currentX) { // Menu wir gerade aufgeklappt (sichtbar)
-        bounceDistance = 10;
-    } else {
         
-    }
-    
-    [UIView animateWithDuration:duration/2 delay:0.0f options:options animations:^
-     {
-         self.frontViewContainer.frame = CGRectMake(newX+bounceDistance, frame.origin.y,
-                                                    frame.size.width, frame.size.height);
-     } completion:^(BOOL finished) {
-         [UIView animateWithDuration:duration/4 delay:0.0f options:options animations:^
-          {
-              self.frontViewContainer.frame = CGRectMake(newX-bounceDistance/6, frame.origin.y,
-                                                         frame.size.width, frame.size.height);
-              
-              
-          } completion:^(BOOL finished) {
-              [UIView animateWithDuration:duration/6 delay:0.0f options:options animations:^
-               {
-                   self.frontViewContainer.frame = frame;
-               } completion:^(BOOL finished) {
-                   
-                   if (finished)
+    if(newX > currentX) {
+        bounceDistance = 10;
+        [UIView animateWithDuration:duration/2 delay:0.0f options:options animations:^
+         {
+             self.frontViewContainer.frame = CGRectMake(newX+bounceDistance, frame.origin.y,
+                                                        frame.size.width, frame.size.height);
+         } completion:^(BOOL finished) {
+             [UIView animateWithDuration:duration/4 delay:0.0f options:options animations:^
+              {
+                  self.frontViewContainer.frame = CGRectMake(newX-bounceDistance/6, frame.origin.y,
+                                                             frame.size.width, frame.size.height);
+                  
+              } completion:^(BOOL finished) {
+                  [UIView animateWithDuration:duration/6 delay:0.0f options:options animations:^
                    {
-                       safelyExecuteCompletionBlockOnMainThread(completion, finished);
-                   }
-               }];
-              
-          }];
-     }];
+                       self.frontViewContainer.frame = [self frontViewFrameForVisibleLeftView];
+                   } completion:^(BOOL finished) {
+                       
+                       if (finished)
+                       {
+                           safelyExecuteCompletionBlockOnMainThread(completion, finished);
+                       }
+                   }];
+              }];
+         }];
+    } else {
+
+        newX = 0;
+        [UIView animateWithDuration:duration/2 delay:0.0f options:options animations:^
+         {
+             self.frontViewContainer.frame = CGRectMake(newX+bounceDistance, frame.origin.y,
+                                                        frame.size.width, frame.size.height);
+         } completion:^(BOOL finished) {
+             [UIView animateWithDuration:duration/4 delay:0.0f options:options animations:^
+              {
+                  self.frontViewContainer.frame = [self frontViewFrameForCenter];
+                  
+                   } completion:^(BOOL finished) {
+                       
+                       if (finished)
+                       {
+                           safelyExecuteCompletionBlockOnMainThread(completion, finished);
+                       }
+                   }];
+              }];
+    }
 }
 
 
