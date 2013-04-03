@@ -29,6 +29,7 @@
 #pragma mark - Properties
 @property (nonatomic, assign, readwrite) PKRevealControllerState state;
 @property (nonatomic, assign, readwrite) BOOL isPresentationModeActive;
+@property (nonatomic, assign, readwrite) BOOL isAnimationActive;
 
 @property (nonatomic, strong, readwrite) UIViewController *frontViewController;
 @property (nonatomic, strong, readwrite) UIViewController *leftViewController;
@@ -275,7 +276,7 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     }
     else
     {
-        safelyExecuteCompletionBlockOnMainThread(completion, YES);
+        safelyExecuteCompletionBlockOnMainThread(self, completion, YES);
     }
 }
 
@@ -952,6 +953,11 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
 - (void)showLeftViewControllerAnimated:(BOOL)animated
                             completion:(PKDefaultCompletionHandler)completion
 {
+    if (self.isAnimationActive) {
+        return;
+    }
+    self.isAnimationActive = YES;
+
     __weak PKRevealController *weakSelf = self;
     
     void (^showLeftViewBlock)(BOOL finished) = ^(BOOL finished)
@@ -970,7 +976,7 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
              weakSelf.state = PKRevealControllerFocusesLeftViewController;
              [weakSelf removeRightViewControllerFromHierarchy];
              [weakSelf updateResetTapGestureRecognizer];
-             safelyExecuteCompletionBlockOnMainThread(completion, finished);
+             safelyExecuteCompletionBlockOnMainThread(self, completion, finished);
          }];
     };
     
@@ -992,6 +998,11 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
 - (void)showRightViewControllerAnimated:(BOOL)animated
                              completion:(PKDefaultCompletionHandler)completion
 {
+    if (self.isAnimationActive) {
+        return;
+    }
+    self.isAnimationActive = YES;
+
     __weak PKRevealController *weakSelf = self;
     
     void (^showRightViewBlock)(BOOL finished) = ^(BOOL finished)
@@ -1009,7 +1020,7 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
              }
              weakSelf.state = PKRevealControllerFocusesRightViewController;
              [weakSelf updateResetTapGestureRecognizer];
-             safelyExecuteCompletionBlockOnMainThread(completion, finished);
+             safelyExecuteCompletionBlockOnMainThread(self, completion, finished);
          }];
     };
     
@@ -1031,6 +1042,11 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
 - (void)showFrontViewControllerAnimated:(BOOL)animated
                              completion:(PKDefaultCompletionHandler)completion
 {
+    if (self.isAnimationActive) {
+        return;
+    }
+    
+    self.isAnimationActive = YES;
     __weak PKRevealController *weakSelf = self;
     
     [self setFrontViewFrame:[self frontViewFrameForCenter]
@@ -1045,7 +1061,7 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
          [weakSelf removeRightViewControllerFromHierarchy];
          [weakSelf removeLeftViewControllerFromHierarchy];
          [weakSelf updateResetTapGestureRecognizer];
-         safelyExecuteCompletionBlockOnMainThread(completion, finished);
+         safelyExecuteCompletionBlockOnMainThread(weakSelf, completion, finished);
      }];
 }
 
@@ -1060,7 +1076,7 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
                  completion:^(BOOL finished)
      {
          weakSelf.state = PKRevealControllerFocusesLeftViewControllerInPresentationMode;
-         safelyExecuteCompletionBlockOnMainThread(completion, finished);
+         safelyExecuteCompletionBlockOnMainThread(weakSelf, completion, finished);
      }];
 }
 
@@ -1074,7 +1090,7 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
                  completion:^(BOOL finished)
      {
          weakSelf.state = PKRevealControllerFocusesRightViewControllerInPresentationMode;
-         safelyExecuteCompletionBlockOnMainThread(completion, finished);
+         safelyExecuteCompletionBlockOnMainThread(weakSelf, completion, finished);
      }];
 }
 
@@ -1103,7 +1119,7 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
                  completion:^(BOOL finished)
      {
          weakSelf.state = state;
-         safelyExecuteCompletionBlockOnMainThread(completion, finished);
+         safelyExecuteCompletionBlockOnMainThread(weakSelf, completion, finished);
      }];
 }
 
@@ -1130,7 +1146,7 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     [self setFrontViewFrame:frame animated:animated completion:^(BOOL finished)
      {
          weakSelf.state = state;
-         safelyExecuteCompletionBlockOnMainThread(completion, finished);
+         safelyExecuteCompletionBlockOnMainThread(weakSelf, completion, finished);
      }];
 }
 
@@ -1173,7 +1189,7 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
      }
                      completion:^(BOOL finished)
      {
-         safelyExecuteCompletionBlockOnMainThread(completion, finished);
+         safelyExecuteCompletionBlockOnMainThread(self, completion, finished);
      }];
 }
 
@@ -1209,7 +1225,7 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
                        
                        if (finished)
                        {
-                           safelyExecuteCompletionBlockOnMainThread(completion, finished);
+                           safelyExecuteCompletionBlockOnMainThread(self, completion, finished);
                        }
                    }];
               }];
@@ -1230,7 +1246,7 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
                        
                        if (finished)
                        {
-                           safelyExecuteCompletionBlockOnMainThread(completion, finished);
+                           safelyExecuteCompletionBlockOnMainThread(self, completion, finished);
                        }
                    }];
               }];
@@ -1550,7 +1566,7 @@ NS_INLINE BOOL isZero(CGFloat value)
     return (value == 0.0f);
 }
 
-NS_INLINE void safelyExecuteCompletionBlockOnMainThread(PKDefaultCompletionHandler block, BOOL finished)
+NS_INLINE void safelyExecuteCompletionBlockOnMainThread(PKRevealController* self, PKDefaultCompletionHandler block, BOOL finished)
 {
     void(^executeBlock)() = ^()
     {
@@ -1558,6 +1574,7 @@ NS_INLINE void safelyExecuteCompletionBlockOnMainThread(PKDefaultCompletionHandl
         {
             block(finished);
         }
+        self.isAnimationActive = NO;
     };
     
     if ([NSThread isMainThread])
