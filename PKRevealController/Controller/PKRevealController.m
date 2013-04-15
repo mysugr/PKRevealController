@@ -266,6 +266,11 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
               focusAfterChange:(BOOL)focus
                     completion:(PKDefaultCompletionHandler)completion
 {
+    if (self.isAnimationActive) {
+        return;
+    }
+    self.isAnimationActive = YES;
+    
     [self setFrontViewController:frontViewController];
     
     if (focus && ([self isLeftViewVisible] || [self isRightViewVisible]))
@@ -953,10 +958,6 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
 - (void)showLeftViewControllerAnimated:(BOOL)animated
                             completion:(PKDefaultCompletionHandler)completion
 {
-    if (self.isAnimationActive) {
-        return;
-    }
-    self.isAnimationActive = YES;
 
     __weak PKRevealController *weakSelf = self;
     
@@ -998,10 +999,6 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
 - (void)showRightViewControllerAnimated:(BOOL)animated
                              completion:(PKDefaultCompletionHandler)completion
 {
-    if (self.isAnimationActive) {
-        return;
-    }
-    self.isAnimationActive = YES;
 
     __weak PKRevealController *weakSelf = self;
     
@@ -1042,11 +1039,7 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
 - (void)showFrontViewControllerAnimated:(BOOL)animated
                              completion:(PKDefaultCompletionHandler)completion
 {
-    if (self.isAnimationActive) {
-        return;
-    }
     
-    self.isAnimationActive = YES;
     __weak PKRevealController *weakSelf = self;
     
     [self setFrontViewFrame:[self frontViewFrameForCenter]

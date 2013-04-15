@@ -134,137 +134,25 @@ typedef void(^PKDefaultErrorHandler)(NSError *error);
 
 #pragma mark - Methods
 
-/**
- * Initializers. Left/right controllers can be added/exchanged/removed dynamically after initialization.
- */
-+ (instancetype)revealControllerWithFrontViewController:(UIViewController *)frontViewController
-                                     leftViewController:(UIViewController *)leftViewController
-                                    rightViewController:(UIViewController *)rightViewController
-                                                options:(NSDictionary *)options;
-
-+ (instancetype)revealControllerWithFrontViewController:(UIViewController *)frontViewController
-                                     leftViewController:(UIViewController *)leftViewController
-                                                options:(NSDictionary *)options;
-
-+ (instancetype)revealControllerWithFrontViewController:(UIViewController *)frontViewController
-                                    rightViewController:(UIViewController *)rightViewController
-                                                options:(NSDictionary *)options;
-
-- (id)initWithFrontViewController:(UIViewController *)frontViewController
-               leftViewController:(UIViewController *)leftViewController
-              rightViewController:(UIViewController *)rightViewController
-                          options:(NSDictionary *)options;
 
 - (id)initWithFrontViewController:(UIViewController *)frontViewController
                leftViewController:(UIViewController *)leftViewController
                           options:(NSDictionary *)options;
 
-- (id)initWithFrontViewController:(UIViewController *)frontViewController
-              rightViewController:(UIViewController *)rightViewController
-                          options:(NSDictionary *)options;
-
 /**
- * Shifts the front view to the position that's best suited to present the desired controller's view. (Animates by default)
- *
- * @param UIViewController controller - This is either the left or the right view controller (if present - respectively).
- */
-- (void)showViewController:(UIViewController *)controller;
-
-/**
- * Shifts the front view to the position that's best suited to present the desired controller's view.
- *
- * @param UIViewController controller - This is either the left or the right view controller (if present - respectively).
- * @param BOOL animated - Whether the frame adjustments should be animated or not.
- * @param PKDefaultCompletionHandler completion - Executed on the main thread after the show animation is completed.
+ Reveal menu
  */
 - (void)showViewController:(UIViewController *)controller
                   animated:(BOOL)animated
                 completion:(PKDefaultCompletionHandler)completion;
 
-/**
- * Takes the currently active controller and enters presentation mode, thereby revealing the maximum width
- * of the view, which can be specified via the left/rightViewWidthRange properties.
- *
- * @param BOOL animated - Whether the frame adjustments should be animated or not.
- * @param PKDefaultCompletionHandler completion - Executed on the main thread after the show animation is completed.
- */
-- (void)enterPresentationModeAnimated:(BOOL)animated
-                           completion:(PKDefaultCompletionHandler)completion;
 
 /**
- * If active, this method will resign the presentation mode.
- * 
- * @param BOOL entirely - By passing YES for this parameter, not only the presentation mode will resign, but the entire
- *                        controller will go back to showing the front view only.
- * @param BOOL animated - Whether the frame adjustments should be animated or not.
- * @param PKDefaultCompletionHandler completion - Executed on the main thread after the show animation is completed.
- */
-- (void)resignPresentationModeEntirely:(BOOL)entirely
-                              animated:(BOOL)animated
-                            completion:(PKDefaultCompletionHandler)completion;
-
-/**
- * Exchanges the current front view controller for a new one.
- *
- * @param UIViewController frontViewController - Thew new front view controller.
- */
-- (void)setFrontViewController:(UIViewController *)frontViewController;
-
-/**
- * Exchanges the current front view controller for a new one.
- *
- * @param UIViewController frontViewController - The new front view controller.
- * @param BOOL focus - Whether the front view controller's view animates back to its center position after it was set.
- * @param PKDefaultCompletionHandler completion - Executed on the main thread after the show animation is completed.
+ Show controller
  */
 - (void)setFrontViewController:(UIViewController *)frontViewController
               focusAfterChange:(BOOL)focus
                     completion:(PKDefaultCompletionHandler)completion;
 
-/**
- * Exchanges the current left view controller for a new one.
- *
- * @param UIViewController leftViewController - Thew new left view controller.
- */
-- (void)setLeftViewController:(UIViewController *)leftViewController;
-
-/**
- * Exchanges the current right view controller for a new one.
- *
- * @param UIViewController rightViewController - Thew new right view controller.
- */
-- (void)setRightViewController:(UIViewController *)rightViewController;
-
-/**
- * Adjusts the minimum and maximum reveal width of any given view controller's view.
- *
- * @param CGFloat minWidth - The default (minimum) width of the view to be shown.
- * @param CGFloat minWidth - The maximum width of the view to be shown when overdrawing (if applicable) or
- *                           entering presentation mode.
- * @param UIViewController controller - The view controller whose view reveal sizing is being adjusted.
- */
-- (void)setMinimumWidth:(CGFloat)minWidth
-           maximumWidth:(CGFloat)maxWidth
-      forViewController:(UIViewController *)controller;
-
-/**
- * @return UIViewController - Returns the currently focused controller, i.e. the one that's most prominent at any given point in time. 
- */
-- (UIViewController *)focusedController;
-
-/**
- * @return PKRevealControllerType - Returns the controller type, i.e. whether it has a left side, a right side, both or none.
- */
-- (PKRevealControllerType)type;
-
-/**
- * @return BOOL - Returns YES if the reveal controller has a right side, NO otherwise.
- */
-- (BOOL)hasRightViewController;
-
-/**
- * @return BOOL - Returns YES if the reveal controller has a left side, NO otherwise.
- */
-- (BOOL)hasLeftViewController;
 
 @end
