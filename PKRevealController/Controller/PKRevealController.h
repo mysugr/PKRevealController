@@ -16,10 +16,8 @@
 typedef NS_ENUM(NSUInteger, PKRevealControllerState)
 {
     PKRevealControllerFocusesLeftViewController,
-    PKRevealControllerFocusesRightViewController,
     PKRevealControllerFocusesFrontViewController,
     PKRevealControllerFocusesLeftViewControllerInPresentationMode,
-    PKRevealControllerFocusesRightViewControllerInPresentationMode
 };
 
 typedef NS_ENUM(NSUInteger, PKRevealControllerAnimationType)
@@ -113,7 +111,6 @@ typedef void(^PKDefaultErrorHandler)(NSError *error);
 #pragma mark - Properties
 @property (nonatomic, strong, readonly) UIViewController *frontViewController;
 @property (nonatomic, strong, readonly) UIViewController *leftViewController;
-@property (nonatomic, strong, readonly) UIViewController *rightViewController;
 
 @property (nonatomic, strong, readonly) UIPanGestureRecognizer *revealPanGestureRecognizer;
 @property (nonatomic, strong, readonly) UITapGestureRecognizer *revealResetTapGestureRecognizer;
@@ -142,17 +139,17 @@ typedef void(^PKDefaultErrorHandler)(NSError *error);
 /**
  Reveal menu
  */
-- (void)showViewController:(UIViewController *)controller
-                  animated:(BOOL)animated
-                completion:(PKDefaultCompletionHandler)completion;
 
+- (void)showSidemenu;
+- (void)showFrontViewController;
+- (void)showViewController:(UIViewController *)controller
+                completion:(PKDefaultCompletionHandler)completion;
 
 /**
  Show controller
  */
-- (void)setFrontViewController:(UIViewController *)frontViewController
-              focusAfterChange:(BOOL)focus
-                    completion:(PKDefaultCompletionHandler)completion;
+
+- (void)showController:(UIViewController *)frontViewController;
 
 
 @end

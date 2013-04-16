@@ -33,7 +33,6 @@
 
 @property (nonatomic, strong, readwrite) UIViewController *frontViewController;
 @property (nonatomic, strong, readwrite) UIViewController *leftViewController;
-@property (nonatomic, strong, readwrite) UIViewController *rightViewController;
 
 @property (nonatomic, strong, readwrite) PKRevealControllerContainerView *frontViewContainer;
 @property (nonatomic, strong, readwrite) PKRevealControllerContainerView *leftViewContainer;
@@ -123,7 +122,6 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     if (self != nil)
     {
         _frontViewController = frontViewController;
-        _rightViewController = rightViewController;
         _leftViewController = leftViewController;
         
         [self commonInitializer];
@@ -178,7 +176,6 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     _controllerOptions = [NSMutableDictionary dictionaryWithCapacity:10];
     _frontViewController.revealController = self;
     _leftViewController.revealController = self;
-    _rightViewController.revealController = self;
 }
 
 #pragma mark - API
@@ -190,6 +187,24 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
                   completion:NULL];
 }
 
+- (void)showSidemenu; {
+    [self showViewController:self.leftViewController completion:NULL];
+}
+
+- (void)showFrontViewController; {
+    [self showViewController:self.frontViewController completion:NULL];
+}
+
+- (void)showViewController:(UIViewController *)controller
+                completion:(PKDefaultCompletionHandler)completion; {
+    if (self.isAnimationActive) {
+        return;
+    }
+    self.isAnimationActive = YES;
+    [self showViewController:controller animated:YES completion:completion];
+}
+
+ 
 - (void)showViewController:(UIViewController *)controller
                   animated:(BOOL)animated
                 completion:(PKDefaultCompletionHandler)completion
@@ -202,52 +217,12 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
         }
         
     }
-    else if (controller == self.rightViewController)
-    {
-        if ([self hasRightViewController])
-        {
-            [self showRightViewControllerAnimated:animated completion:completion];
-        }
-    }
     else if (controller == self.frontViewController)
     {
         [self showFrontViewControllerAnimated:animated completion:completion];
     }
 }
 
-
-- (void)enterPresentationModeAnimated:(BOOL)animated
-                           completion:(PKDefaultCompletionHandler)completion
-{
-    if ([self isLeftViewVisible])
-    {
-        [self enterPresentationModeForLeftViewControllerAnimated:animated
-                                                      completion:completion];
-    }
-    else if ([self isRightViewVisible])
-    {
-        [self enterPresentationModeForRightViewControllerAnimated:animated
-                                                       completion:completion];
-    }
-}
-
-- (void)resignPresentationModeEntirely:(BOOL)entirely
-                              animated:(BOOL)animated
-                            completion:(PKDefaultCompletionHandler)completion
-{
-    if ([self isLeftViewVisible])
-    {
-        [self resignPresentationModeForLeftViewControllerEntirely:entirely
-                                                         animated:animated
-                                                       completion:completion];
-    }
-    else if ([self isRightViewVisible])
-    {
-        [self resignPresentationModeForRightViewControllerEntirely:entirely
-                                                          animated:animated
-                                                        completion:completion];
-    }
-}
 
 - (void)setFrontViewController:(UIViewController *)frontViewController
 {
@@ -266,23 +241,12 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
               focusAfterChange:(BOOL)focus
                     completion:(PKDefaultCompletionHandler)completion
 {
-    if (self.isAnimationActive) {
-        return;
-    }
-    self.isAnimationActive = YES;
-    
     [self setFrontViewController:frontViewController];
     
-    if (focus && ([self isLeftViewVisible] || [self isRightViewVisible]))
-    {
-        [self showViewController:self.frontViewController
-                        animated:YES
-                      completion:completion];
-    }
-    else
-    {
-        safelyExecuteCompletionBlockOnMainThread(self, completion, YES);
-    }
+    [self showViewController:self.frontViewController
+                    animated:YES
+                  completion:completion];
+    
 }
 
 - (void)setLeftViewController:(UIViewController *)leftViewController
@@ -299,50 +263,33 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
         
         if ([self isLeftViewVisible])
         {
-            [self removeRightViewControllerFromHierarchy];
             [self addLeftViewControllerToHierarchy];
         }
     }
 }
 
-- (void)setRightViewController:(UIViewController *)rightViewController
-{
-    BOOL isRightViewVisible = (self.state == PKRevealControllerFocusesRightViewController);
-    
-    if (_rightViewController != rightViewController)
-    {
-        if (isRightViewVisible)
-        {
-            [self removeRightViewControllerFromHierarchy];
-        }
-        
-        _rightViewController = rightViewController;
-        _rightViewController.revealController = self;
-        
-        if (isRightViewVisible)
-        {
-            [self removeLeftViewControllerFromHierarchy];
-            [self addRightViewControllerToHierarchy];
-        }
+- (void)showController:(UIViewController *)frontViewController; {
+    if (self.isAnimationActive) {
+        return;
     }
+    self.isAnimationActive = YES;
+    [self setFrontViewController:frontViewController];
+    [self showViewController:frontViewController animated:YES completion:NULL];
 }
+
+
+- (void)setIsAnimationActive:(BOOL)isAnimationActive; {
+    _isAnimationActive = isAnimationActive;
+    self.revealPanGestureRecognizer.enabled = !isAnimationActive;
+    self.revealResetTapGestureRecognizer.enabled = !isAnimationActive;
+    [self.leftViewContainer setUserInteractionEnabled:!isAnimationActive];
+}
+
+
 
 - (PKRevealControllerType)type
 {
-    if (self.frontViewController != nil && self.leftViewController != nil && self.rightViewController != nil)
-    {
-        return PKRevealControllerTypeBoth;
-    }
-    else if (self.frontViewController != nil && self.leftViewController != nil)
-    {
-        return PKRevealControllerTypeLeft;
-    }
-    else if (self.frontViewController != nil && self.rightViewController != nil)
-    {
-        return PKRevealControllerTypeRight;
-    }
-    
-    return PKRevealControllerTypeNone;
+    return PKRevealControllerTypeLeft;
 }
 
 - (BOOL)hasRightViewController
@@ -365,10 +312,6 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     {
         self.leftViewWidthRange = widthRange;
     }
-    else if (controller == self.rightViewController)
-    {
-        self.rightViewWidthRange = widthRange;
-    }
 }
 
 - (UIViewController *)focusedController
@@ -383,23 +326,13 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
         case PKRevealControllerFocusesLeftViewController:
             returnViewController =  self.leftViewController;
             break;
-            
-        case PKRevealControllerFocusesRightViewController:
-            returnViewController = self.rightViewController;
-            break;
-            
+                        
         case PKRevealControllerFocusesLeftViewControllerInPresentationMode:
-        case PKRevealControllerFocusesRightViewControllerInPresentationMode:
             break;
     }
     return returnViewController;
 }
 
-- (BOOL)isPresentationModeActive
-{
-    return (self.state == PKRevealControllerFocusesLeftViewControllerInPresentationMode
-            || self.state == PKRevealControllerFocusesRightViewControllerInPresentationMode);
-}
 
 #pragma mark - View Lifecycle (System)
 
@@ -426,7 +359,6 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
         if (self.frontViewContainer == nil)
         {
             self.frontViewContainer = [[PKRevealControllerContainerView alloc] initForController:self.frontViewController shadow:YES];
-            self.frontViewContainer.autoresizingMask = [self autoresizingMaskForFrontViewContainer];
         }
         
         //self.frontViewContainer.frame = [self frontViewFrameForCurrentState];
@@ -457,7 +389,6 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
         if (self.leftViewContainer == nil)
         {
             self.leftViewContainer = [[PKRevealControllerContainerView alloc] initForController:self.leftViewController shadow:NO];
-            self.leftViewContainer.autoresizingMask = [self autoresizingMaskForLeftViewContainer];
         }
         
         self.leftViewContainer.frame = [self leftViewFrame];
@@ -475,33 +406,7 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     }
 }
 
-- (void)addRightViewControllerToHierarchy
-{
-    if (self.rightViewController != nil && ![self.childViewControllers containsObject:self.rightViewController])
-    {
-        [self addChildViewController:self.rightViewController];
-        self.rightViewContainer.viewController = self.rightViewController;
-        
-        if (self.rightViewContainer == nil)
-        {
-            self.rightViewContainer = [[PKRevealControllerContainerView alloc] initForController:self.rightViewController shadow:NO];
-            self.rightViewContainer.autoresizingMask = [self autoresizingMaskForRightViewContainer];
-        }
-        
-        self.rightViewContainer.frame = [self rightViewFrame];
-        [self.view insertSubview:self.rightViewContainer belowSubview:self.frontViewContainer];
-        [self.rightViewController didMoveToParentViewController:self];
-    }
-}
 
-- (void)removeRightViewControllerFromHierarchy
-{
-    if ([self.childViewControllers containsObject:self.rightViewController])
-    {
-        [self.rightViewContainer removeFromSuperview];
-        [self.rightViewController removeFromParentViewController];
-    }
-}
 
 - (void)addPanGestureRecognizerToFrontView
 {
@@ -861,7 +766,7 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     }
     else if (gestureRecognizer == self.revealResetTapGestureRecognizer)
     {
-        return ([self isLeftViewVisible] || [self isRightViewVisible]);
+        return ([self isLeftViewVisible]);
     }
     
     return YES;
@@ -941,11 +846,11 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     
     if (isNegative(origin.x))
     {
-        [self showViewController:self.rightViewController];
+
     }
     else if (isZero(origin.x))
     {
-        [self showViewController:self.rightViewController];
+
     }
     else
     {
@@ -963,7 +868,6 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     
     void (^showLeftViewBlock)(BOOL finished) = ^(BOOL finished)
     {
-        [weakSelf removeRightViewControllerFromHierarchy];
         [weakSelf addLeftViewControllerToHierarchy];
         
         [weakSelf setFrontViewFrame:[weakSelf frontViewFrameForVisibleLeftView]
@@ -975,24 +879,12 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
                  [weakSelf.frontViewContainer disableUserInteractionForContainedView];
              }
              weakSelf.state = PKRevealControllerFocusesLeftViewController;
-             [weakSelf removeRightViewControllerFromHierarchy];
              [weakSelf updateResetTapGestureRecognizer];
              safelyExecuteCompletionBlockOnMainThread(self, completion, finished);
          }];
     };
     
-    if ([self isRightViewVisible])
-    {
-        [self showFrontViewControllerAnimated:animated
-                                   completion:^(BOOL finished)
-         {
-             showLeftViewBlock(finished);
-         }];
-    }
-    else
-    {
-        showLeftViewBlock(YES);
-    }
+    showLeftViewBlock(YES);
 }
 
 
@@ -1005,7 +897,6 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     void (^showRightViewBlock)(BOOL finished) = ^(BOOL finished)
     {
         [weakSelf removeLeftViewControllerFromHierarchy];
-        [weakSelf addRightViewControllerToHierarchy];
         
         [weakSelf setFrontViewFrame:[weakSelf frontViewFrameForVisibleRightView]
                            animated:animated
@@ -1015,7 +906,6 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
              {
                  [weakSelf.frontViewContainer disableUserInteractionForContainedView];
              }
-             weakSelf.state = PKRevealControllerFocusesRightViewController;
              [weakSelf updateResetTapGestureRecognizer];
              safelyExecuteCompletionBlockOnMainThread(self, completion, finished);
          }];
@@ -1051,97 +941,12 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
              [weakSelf.frontViewContainer enableUserInteractionForContainedView];
          }
          weakSelf.state = PKRevealControllerFocusesFrontViewController;
-         [weakSelf removeRightViewControllerFromHierarchy];
          [weakSelf removeLeftViewControllerFromHierarchy];
          [weakSelf updateResetTapGestureRecognizer];
          safelyExecuteCompletionBlockOnMainThread(weakSelf, completion, finished);
      }];
 }
 
-
-- (void)enterPresentationModeForLeftViewControllerAnimated:(BOOL)animated
-                                                completion:(PKDefaultCompletionHandler)completion
-{
-    __weak PKRevealController *weakSelf = self;
-    
-    [self setFrontViewFrame:[self frontViewFrameForLeftViewPresentationMode]
-                   animated:animated
-                 completion:^(BOOL finished)
-     {
-         weakSelf.state = PKRevealControllerFocusesLeftViewControllerInPresentationMode;
-         safelyExecuteCompletionBlockOnMainThread(weakSelf, completion, finished);
-     }];
-}
-
-- (void)enterPresentationModeForRightViewControllerAnimated:(BOOL)animated
-                                                 completion:(PKDefaultCompletionHandler)completion
-{
-    __weak PKRevealController *weakSelf = self;
-    
-    [self setFrontViewFrame:[self frontViewFrameForRightViewPresentationMode]
-                   animated:animated
-                 completion:^(BOOL finished)
-     {
-         weakSelf.state = PKRevealControllerFocusesRightViewControllerInPresentationMode;
-         safelyExecuteCompletionBlockOnMainThread(weakSelf, completion, finished);
-     }];
-}
-
-- (void)resignPresentationModeForLeftViewControllerEntirely:(BOOL)entirely
-                                                   animated:(BOOL)animated
-                                                 completion:(PKDefaultCompletionHandler)completion
-{
-    __weak PKRevealController *weakSelf = self;
-    
-    CGRect frame;
-    PKRevealControllerState state;
-    
-    if (entirely)
-    {
-        frame = [self frontViewFrameForCenter];
-        state = PKRevealControllerFocusesFrontViewController;
-    }
-    else
-    {
-        frame = [self frontViewFrameForVisibleLeftView];
-        state = PKRevealControllerFocusesLeftViewController;
-    }
-    
-    [self setFrontViewFrame:frame
-                   animated:animated
-                 completion:^(BOOL finished)
-     {
-         weakSelf.state = state;
-         safelyExecuteCompletionBlockOnMainThread(weakSelf, completion, finished);
-     }];
-}
-
-- (void)resignPresentationModeForRightViewControllerEntirely:(BOOL)entirely
-                                                    animated:(BOOL)animated
-                                                  completion:(PKDefaultCompletionHandler)completion
-{
-    __weak PKRevealController *weakSelf = self;
-    
-    CGRect frame;
-    PKRevealControllerState state;
-    
-    if (entirely)
-    {
-        frame = [self frontViewFrameForCenter];
-        state = PKRevealControllerFocusesFrontViewController;
-    }
-    else
-    {
-        frame = [self frontViewFrameForVisibleRightView];
-        state = PKRevealControllerFocusesRightViewController;
-    }
-    
-    [self setFrontViewFrame:frame animated:animated completion:^(BOOL finished)
-     {
-         weakSelf.state = state;
-         safelyExecuteCompletionBlockOnMainThread(weakSelf, completion, finished);
-     }];
-}
 
 #pragma mark -
 
@@ -1273,15 +1078,6 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
         BOOL showLeftView = CGRectGetWidth(CGRectIntersection(self.frontViewContainer.frame, relevantLeftViewRect)) <= floorf(CGRectGetWidth(relevantLeftViewRect)/2.0f);
         controllerToShow = showLeftView ? self.leftViewController : self.frontViewController;
     }
-    else if ([self isRightViewVisible])
-    {
-        CGRect relevantRightViewRect = self.rightViewContainer.frame;
-        relevantRightViewRect.origin.x += CGRectGetWidth(self.rightViewContainer.frame)-[self rightViewMinWidth];
-        relevantRightViewRect.size.width = [self rightViewMinWidth];
-        
-        BOOL showRightView = CGRectGetWidth(CGRectIntersection(self.frontViewContainer.frame, relevantRightViewRect)) <= floorf(CGRectGetWidth(relevantRightViewRect)/2.0f);
-        controllerToShow = showRightView ? self.rightViewController : self.frontViewController;
-    }
     else
     {
         controllerToShow = self.frontViewController;
@@ -1297,11 +1093,6 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     return isPositive(CGRectGetMinX(self.frontViewContainer.frame));
 }
 
-- (BOOL)isRightViewVisible
-{
-    return isNegative(CGRectGetMinX(self.frontViewContainer.frame));
-}
-
 - (BOOL)isFrontViewEntirelyVisible
 {
     return isZero(CGRectGetMinX(self.frontViewContainer.frame));
@@ -1313,13 +1104,11 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     
     if (isPositive(origin.x))
     {
-        [self removeRightViewControllerFromHierarchy];
         [self addLeftViewControllerToHierarchy];
     }
     else
     {
         [self removeLeftViewControllerFromHierarchy];
-        [self addRightViewControllerToHierarchy];
     }
 }
 
@@ -1372,14 +1161,9 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
             
         case PKRevealControllerFocusesLeftViewController:
             returnRect = [self frontViewFrameForVisibleLeftView];
-            break;
-            
-        case PKRevealControllerFocusesRightViewController:
-            returnRect = [self frontViewFrameForVisibleRightView];
-            break;
+            break;            
             
         case PKRevealControllerFocusesLeftViewControllerInPresentationMode:
-        case PKRevealControllerFocusesRightViewControllerInPresentationMode:
             break;
     }
     
@@ -1441,89 +1225,7 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     return frame;
 }
 
-#pragma mark - Helper (Autoresizing)
 
-- (UIViewAutoresizing)autoresizingMaskForFrontViewContainer
-{
-    return (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
-}
-
-- (UIViewAutoresizing)autoresizingMaskForLeftViewContainer
-{
-    return (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleRightMargin);
-}
-
-- (UIViewAutoresizing)autoresizingMaskForRightViewContainer
-{
-    return (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleLeftMargin);
-}
-
-#pragma mark - Autorotation
-
-/*
- * Please Note: The PKRevealController will only rotate if, and only if,
- * all the controllers support the requested orientation.
- */
-- (BOOL)shouldAutorotate
-{
-    if ([self hasLeftViewController] && [self hasRightViewController])
-    {
-        return [self.frontViewController shouldAutorotate]
-        && [self.leftViewController shouldAutorotate]
-        && [self.rightViewController shouldAutorotate];
-    }
-    else if ([self hasLeftViewController])
-    {
-        return [self.frontViewController shouldAutorotate]
-        && [self.leftViewController shouldAutorotate];
-    }
-    else if ([self hasRightViewController])
-    {
-        return [self.frontViewController shouldAutorotate]
-        && [self.rightViewController shouldAutorotate];
-    }
-    else
-    {
-        return [self.frontViewController shouldAutorotate];
-    }
-}
-
-- (NSUInteger)supportedInterfaceOrientations
-{
-    if ([self hasLeftViewController] && [self hasRightViewController])
-    {
-        return self.frontViewController.supportedInterfaceOrientations
-        & self.leftViewController.supportedInterfaceOrientations
-        & self.rightViewController.supportedInterfaceOrientations;
-    }
-    else if ([self hasLeftViewController])
-    {
-        return self.frontViewController.supportedInterfaceOrientations
-        & self.leftViewController.supportedInterfaceOrientations;
-    }
-    else if ([self hasRightViewController])
-    {
-        return self.frontViewController.supportedInterfaceOrientations
-        & self.rightViewController.supportedInterfaceOrientations;
-    }
-    else
-    {
-        return self.frontViewController.supportedInterfaceOrientations;
-    }
-}
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
-{
-    return [self.frontViewController shouldAutorotateToInterfaceOrientation:toInterfaceOrientation]
-    && [self.leftViewController shouldAutorotateToInterfaceOrientation:toInterfaceOrientation]
-    && [self.rightViewController shouldAutorotateToInterfaceOrientation:toInterfaceOrientation];
-}
-
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
-                                         duration:(NSTimeInterval)duration
-{
-    [self.frontViewContainer refreshShadowWithAnimationDuration:duration];
-}
 
 #pragma mark - Memory Management
 
@@ -1537,9 +1239,6 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     [self.leftViewController.view removeFromSuperview];
     self.leftViewContainer = nil;
     
-    [self.rightViewController removeFromParentViewController];
-    [self.rightViewController.view removeFromSuperview];
-    self.rightViewContainer = nil;
 }
 
 #pragma mark - Helpers (Generic)
