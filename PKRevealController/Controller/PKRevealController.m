@@ -686,6 +686,26 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
 
 #pragma mark - Gesture Recognition
 
+-(BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
+{
+    SEL checkSelector = @selector(shouldReceiveRevealControllerTouch:);
+    if ([self.frontViewContainer.viewController.childViewControllers count] > 0 && [[self.frontViewContainer.viewController.childViewControllers objectAtIndex:0] respondsToSelector:checkSelector]) {
+        id _controller = [self.frontViewContainer.viewController.childViewControllers objectAtIndex:0];
+        
+        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[[_controller class] instanceMethodSignatureForSelector:checkSelector]];
+        [invocation setTarget:_controller];
+        [invocation setSelector:checkSelector];
+        [invocation setArgument:&touch atIndex:2];
+        [invocation invoke];
+
+        BOOL returnValue;
+        [invocation getReturnValue:&returnValue];
+        return returnValue;
+    } else {
+        return YES;
+    }
+}
+
 - (void)didRecognizeTapWithGestureRecognizer:(UITapGestureRecognizer *)recognizer
 {
     [self showViewController:self.frontViewController];
