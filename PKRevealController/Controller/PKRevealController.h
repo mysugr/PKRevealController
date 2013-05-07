@@ -103,6 +103,18 @@ extern NSString * const PKRevealControllerRecognizesPanningOnFrontViewKey;
  */
 extern NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey;
 
+
+/*
+ * Event identifier for notifications -- will be sent before the side menu appears.
+ */
+extern NSString * const PKRevealControllerSideMenuWillBeShown;
+
+/*
+ * Event identifier for notifications -- will be sent before the front view controller appears.
+ */
+extern NSString * const PKRevealControllerFrontViewControllerWillBeShown;
+
+
 typedef void(^PKDefaultCompletionHandler)(BOOL finished);
 typedef void(^PKDefaultErrorHandler)(NSError *error);
 

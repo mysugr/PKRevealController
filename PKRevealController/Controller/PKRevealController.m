@@ -61,6 +61,9 @@ NSString * const PKRevealControllerDisablesFrontViewInteractionKey = @"PKRevealC
 NSString * const PKRevealControllerRecognizesPanningOnFrontViewKey = @"PKRevealControllerRecognizesPanningOnFrontViewKey";
 NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKRevealControllerRecognizesResetTapOnFrontViewKey";
 
+NSString * const PKRevealControllerSideMenuWillBeShown = @"PKRevealControllerSideMenuWillBeShown";
+NSString * const PKRevealControllerFrontViewControllerWillBeShown = @"PKRevealControllerFrontViewControllerWillBeShown";
+
 #pragma mark - Initialization
 
 + (instancetype)revealControllerWithFrontViewController:(UIViewController *)frontViewController
@@ -188,10 +191,12 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
 }
 
 - (void)showSidemenu; {
+    [[NSNotificationCenter defaultCenter] postNotificationName:PKRevealControllerSideMenuWillBeShown object:self];
     [self showViewController:self.leftViewController completion:NULL];
 }
 
 - (void)showFrontViewController; {
+    [[NSNotificationCenter defaultCenter] postNotificationName:PKRevealControllerFrontViewControllerWillBeShown object:self];
     [self showViewController:self.frontViewController completion:NULL];
 }
 
