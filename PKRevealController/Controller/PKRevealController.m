@@ -853,15 +853,15 @@ NSString * const PKRevealControllerFrontViewControllerWillBeShown = @"PKRevealCo
     
     if (isNegative(origin.x))
     {
-        [self showViewController:self.frontViewController];
+        [self showFrontViewController];
     }
     else if (isZero(origin.x))
     {
-        [self showViewController:self.leftViewController];
+        [self showSidemenu];
     }
     else
     {
-        [self showViewController:self.leftViewController];
+        [self showSidemenu];
     }
 }
 
