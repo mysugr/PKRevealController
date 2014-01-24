@@ -1045,11 +1045,7 @@ NSString * const PKRevealControllerFrontViewControllerWillBeShown = @"PKRevealCo
                    {
                        self.frontViewContainer.frame = [self frontViewFrameForVisibleLeftView];
                    } completion:^(BOOL finished) {
-                       
-                       if (finished)
-                       {
-                           safelyExecuteCompletionBlockOnMainThread(self, completion, finished);
-                       }
+						safelyExecuteCompletionBlockOnMainThread(self, completion, finished);
                    }];
               }];
          }];
@@ -1066,11 +1062,7 @@ NSString * const PKRevealControllerFrontViewControllerWillBeShown = @"PKRevealCo
                   self.frontViewContainer.frame = [self frontViewFrameForCenter];
                   
                    } completion:^(BOOL finished) {
-                       
-                       if (finished)
-                       {
-                           safelyExecuteCompletionBlockOnMainThread(self, completion, finished);
-                       }
+					   safelyExecuteCompletionBlockOnMainThread(self, completion, finished);
                    }];
               }];
     }
