@@ -981,7 +981,8 @@ NSString * const PKRevealControllerFrontViewControllerWillBeShown = @"PKRevealCo
 {
     CGFloat duration = [self animationDuration];
     UIViewAnimationOptions options = (UIViewAnimationOptionBeginFromCurrentState | [self animationCurve]);
-    
+
+	self.isAnimationActive = YES;
     if (self.animationType == PKRevealControllerAnimationTypeStatic)
     {
         [self setFrontViewFrameLinearly:frame
