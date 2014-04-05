@@ -200,6 +200,12 @@ NSString * const PKRevealControllerFrontViewControllerWillBeShown = @"PKRevealCo
     [self showViewController:self.frontViewController completion:NULL];
 }
 
+- (void)showFrontViewControllerAnimated:(BOOL)animated {
+    [[NSNotificationCenter defaultCenter] postNotificationName:PKRevealControllerFrontViewControllerWillBeShown object:self];
+    [self showViewController:self.frontViewController animated:animated completion:NULL];
+}
+
+
 - (void)showViewController:(UIViewController *)controller
                 completion:(PKDefaultCompletionHandler)completion; {
     if (self.isAnimationActive) {
@@ -983,20 +989,23 @@ NSString * const PKRevealControllerFrontViewControllerWillBeShown = @"PKRevealCo
     UIViewAnimationOptions options = (UIViewAnimationOptionBeginFromCurrentState | [self animationCurve]);
 
 	self.isAnimationActive = YES;
-    if (self.animationType == PKRevealControllerAnimationTypeStatic)
+    if (animated && self.animationType == PKRevealControllerAnimationTypeStatic)
     {
         [self setFrontViewFrameLinearly:frame
                                animated:animated
                                duration:duration
                                 options:options
                              completion:completion];
-    } else if (self.animationType == PKRevealControllerAnimationTypeBouncy)
+    } else if (animated && self.animationType == PKRevealControllerAnimationTypeBouncy)
     {
         [self setFrontViewFrameBouncy:frame
                                animated:animated
                                duration:duration
                                 options:options
                              completion:completion];
+    } else {
+        self.frontViewContainer.frame = frame;
+        safelyExecuteCompletionBlockOnMainThread(self, completion, YES);
     }
 
 }

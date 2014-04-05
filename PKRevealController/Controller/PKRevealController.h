@@ -154,6 +154,7 @@ typedef void(^PKDefaultErrorHandler)(NSError *error);
 
 - (void)showSidemenu;
 - (void)showFrontViewController;
+- (void)showFrontViewControllerAnimated:(BOOL)animated;
 - (void)showViewController:(UIViewController *)controller
                 completion:(PKDefaultCompletionHandler)completion;
 
