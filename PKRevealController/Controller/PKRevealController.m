@@ -468,7 +468,19 @@ NSString * const PKRevealControllerFrontViewControllerWillBeShown = @"PKRevealCo
     {
         [self removeTapGestureRecognizerFromFrontView];
     }
+
+	// NOTE: this does not really belong here
+	[self setNeedsStatusBarAppearanceUpdate];
 }
+
+- (UIViewController *)childViewControllerForStatusBarStyle {
+	return [self focusedController];
+}
+
+- (UIViewController *)childViewControllerForStatusBarHidden {
+	return [self focusedController];
+}
+
 
 #pragma mark - Setup
 
