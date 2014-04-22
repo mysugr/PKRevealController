@@ -470,7 +470,9 @@ NSString * const PKRevealControllerFrontViewControllerWillBeShown = @"PKRevealCo
     }
 
 	// NOTE: this does not really belong here
-	[self setNeedsStatusBarAppearanceUpdate];
+    if ([self respondsToSelector:@selector(setNeedsStatusBarAppearanceUpdate)]) {
+        [self setNeedsStatusBarAppearanceUpdate];
+    }
 }
 
 - (UIViewController *)childViewControllerForStatusBarStyle {
