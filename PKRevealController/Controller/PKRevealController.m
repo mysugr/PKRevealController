@@ -1104,7 +1104,7 @@ NSString * const PKRevealControllerFrontViewControllerWillBeShown = @"PKRevealCo
 
 - (BOOL)shouldMoveFrontViewLeftwardsForVelocity:(CGFloat)velocity
 {
-    return (isNegative(velocity) && fabsf(velocity) > self.quickSwipeVelocity);
+    return (isNegative(velocity) && ABS(velocity) > self.quickSwipeVelocity);
 }
 
 - (void)snapFrontViewToClosestEdge
